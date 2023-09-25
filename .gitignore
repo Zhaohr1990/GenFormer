@@ -127,3 +127,19 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# debug
+debug/
+
+# results
+results/
+test_results/
+
+# checkpoints
+autoformer_checkpoints/
+
+# data
+data/
+
+# Mac files
+.DS_Store

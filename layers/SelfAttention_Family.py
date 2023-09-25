@@ -8,7 +8,7 @@ import numpy as np
 import math
 from math import sqrt
 from utils.masking import TriangularCausalMask, ProbMask
-from reformer_pytorch import LSHSelfAttention
+#from reformer_pytorch import LSHSelfAttention
 import os
 
 
