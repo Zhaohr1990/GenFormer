@@ -57,7 +57,7 @@ def data_provider_sim(args, flag):
         freq = args.freq
     
     # construct dataset
-    data_set = Dataset_Wind_Sim(
+    data_set = Dataset_Temperature_Sim(
         root_path=args.root_path,
         flag=flag,
         size=[args.seq_len, args.label_len, args.pred_len],
