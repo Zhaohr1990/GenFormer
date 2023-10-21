@@ -57,12 +57,23 @@ def data_provider_sim(args, flag):
         freq = args.freq
     
     # construct dataset
-    data_set = Dataset_Temperature_Sim(
-        root_path=args.root_path,
-        flag=flag,
-        size=[args.seq_len, args.label_len, args.pred_len],
-        freq=freq
-    )
+
+    if args.example_name == 'Toy_Temperature':
+        data_set = Dataset_Temperature_Sim(
+            root_path=args.root_path,
+            flag=flag,
+            size=[args.seq_len, args.label_len, args.pred_len],
+            freq=freq
+        )
+    elif args.example_name == 'Toy_Wind':
+        data_set = Dataset_Wind_Sim(
+            root_path=args.root_path,
+            flag=flag,
+            size=[args.seq_len, args.label_len, args.pred_len],
+            freq=freq
+        )
+    else:
+        raise ValueError('Example not found.')
     
     # construct dataloader
     data_loader = DataLoader(
