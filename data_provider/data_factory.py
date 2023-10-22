@@ -1,4 +1,4 @@
-from data_provider.data_loader import Dataset_Temperature_Sim, Dataset_Wind_Sim
+from data_provider.data_loader import Dataset_Temperature_Sim, Dataset_Wind_Sim, Dataset_Toy_Example
 from torch.utils.data import DataLoader
 
 """
@@ -45,7 +45,7 @@ def data_provider(args, flag):
 def data_provider_sim(args, flag):
 
     # set shuffle and drop_last
-    if flag == 'test':
+    if flag == 'test' or flag == 'val':
         shuffle_flag = False
         drop_last = False
         batch_size = args.batch_size
@@ -71,6 +71,12 @@ def data_provider_sim(args, flag):
             flag=flag,
             size=[args.seq_len, args.label_len, args.pred_len],
             freq=freq
+        )
+    elif args.example_name == 'Toy_Example':
+        data_set = Dataset_Toy_Example(
+            root_path=args.root_path,
+            flag=flag,
+            size=[args.seq_len, args.label_len, args.pred_len]
         )
     else:
         raise ValueError('Example not found.')
