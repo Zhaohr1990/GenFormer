@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from utils.masking import TriangularCausalMask, ProbMask
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
 from layers.SelfAttention_Family import FullAttention, ProbAttention, AttentionLayer
-from layers.Embed import StateTimeEmbedding_wo_pos
+from layers.Embed import StateTimeEmbedding_wo_pos, StateTimeEmbedding_wo_time
 import numpy as np
 
 class Model(nn.Module):
@@ -17,9 +17,15 @@ class Model(nn.Module):
         self.output_attention = configs.output_attention
 
         # Embedding
-        self.enc_embedding = StateTimeEmbedding_wo_pos(configs.enc_in, configs.num_grps, configs.d_model, configs.freq, configs.dropout)
-        self.dec_embedding = StateTimeEmbedding_wo_pos(configs.dec_in, configs.num_grps, configs.d_model, configs.freq, configs.dropout)
-
+        if configs.embedding_mode == 'StateTime_wo_pos':
+            self.enc_embedding = StateTimeEmbedding_wo_pos(configs.enc_in, configs.num_grps, configs.d_model, configs.freq, configs.dropout)
+            self.dec_embedding = StateTimeEmbedding_wo_pos(configs.dec_in, configs.num_grps, configs.d_model, configs.freq, configs.dropout)
+        elif configs.embedding_mode == 'StateTime_wo_time':
+            self.enc_embedding = StateTimeEmbedding_wo_time(configs.enc_in, configs.num_grps, configs.d_model, configs.dropout)
+            self.dec_embedding = StateTimeEmbedding_wo_time(configs.dec_in, configs.num_grps, configs.d_model, configs.dropout)
+        else:
+            raise ValueError('Example not found.')
+        
         # Encoder
         self.encoder = Encoder(
             [
