@@ -32,8 +32,8 @@ def main():
     parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
 
     # model define
-    parser.add_argument('--num_grps', type=int, default=21, help='encoder input size')
-    #parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
+    parser.add_argument('--num_grps', type=int, default=21, help='number of discrete states')
+    parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
     parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
     parser.add_argument('--c_out', type=int, default=7, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
@@ -50,6 +50,7 @@ def main():
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in encoder')
+    parser.add_argument('--embedding_mode', type=str, help ='embedding mode')
     parser.add_argument('--example_name', type=str, default='Toy_Temperature', help='example name')
 
     # optimization
@@ -72,7 +73,6 @@ def main():
     args = parser.parse_args()
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
-
     if args.use_gpu and args.use_multi_gpu:
         args.dvices = args.devices.replace(' ', '')
         device_ids = args.devices.split(',')
