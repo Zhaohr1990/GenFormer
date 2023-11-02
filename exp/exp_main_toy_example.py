@@ -57,6 +57,9 @@ class Exp_Main_Toy(Exp_Basic):
 
                 outputs = outputs[:, -self.args.pred_len:, :]
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
+                
+                outputs = torch.where(outputs > 1.75, self.args.tail_scaler * outputs, outputs)
+                batch_y = torch.where(batch_y > 1.75, self.args.tail_scaler * batch_y, batch_y)
 
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
@@ -111,6 +114,10 @@ class Exp_Main_Toy(Exp_Basic):
 
                 outputs = outputs[:, -self.args.pred_len:, 0:]
                 batch_y = batch_y[:, -self.args.pred_len:, 0:].to(self.device)
+                
+                outputs = torch.where(outputs > 1.75, self.args.tail_scaler * outputs, outputs)
+                batch_y = torch.where(batch_y > 1.75, self.args.tail_scaler * batch_y, batch_y)
+
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
