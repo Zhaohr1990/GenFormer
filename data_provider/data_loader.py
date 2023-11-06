@@ -5,13 +5,14 @@ import torch
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
 from utils.timefeatures import time_features
+from utils.preprocess import cluster_MarkovChain_states
 #from sklearn.cluster import KMeans
 import warnings
 
 warnings.filterwarnings('ignore')
 
 class Dataset_Temperature_Sim(Dataset):
-    def __init__(self, root_path, flag='train', size=None, scale=True, freq='h'):
+    def __init__(self, root_path, num_grps, flag='train', size=None, scale=True, freq='h'):
         # init
         if size == None:
             self.seq_len = 24 * 2
@@ -91,7 +92,7 @@ class Dataset_Temperature_Sim(Dataset):
         return self.scaler.inverse_transform(data)
 
 class Dataset_Wind_Sim(Dataset):
-    def __init__(self, root_path, flag='train', size=None, scale=False, freq='h'):   
+    def __init__(self, root_path, num_grps, flag='train', size=None, scale=False, freq='h'):   
         # init
         if size == None:
             self.seq_len = 8 * 7 * 2
@@ -183,7 +184,7 @@ class Dataset_Wind_Sim(Dataset):
         return self.scaler.inverse_transform(data)
 
 class Dataset_Wind_Sim_Predict(Dataset_Wind_Sim):
-    def __init__(self,  root_path, flag='train', size=None, scale=False, freq='h'):   
+    def __init__(self,  root_path, num_grps, flag='train', size=None, scale=False, freq='h'):   
         super(Dataset_Wind_Sim_Predict, self).__init__(root_path, flag, size, scale, freq)
         self.__read_data_predict__()
         self.data_stamp_total = np.concatenate((self.data_stamp[-self.seq_len:, :], self.data_predict_stamp), axis=0)
@@ -232,7 +233,7 @@ class Dataset_Wind_Sim_Predict(Dataset_Wind_Sim):
         return int(len(self.state_predict_data) / self.pred_len)
 
 class Dataset_Temperature(Dataset):
-    def __init__(self, data_path, flag='train', size=None, 
+    def __init__(self, data_path, num_grps, flag='train', size=None, 
                  features='M', target='stat_1', scale=True, timeenc=0, freq='h'):
         # size [seq_len, label_len, pred_len]
         # info, timeenc was 1 
@@ -315,7 +316,7 @@ class Dataset_Temperature(Dataset):
         return self.scaler.inverse_transform(data)
 
 class Dataset_Toy_Example(Dataset):
-    def __init__(self, root_path, flag='train', num_step=201, num_sample=1000, size=None):   
+    def __init__(self, root_path, num_grps, flag='train', num_step=201, num_sample=1000, size=None):   
         # init
         if size == None:
             self.seq_len = 200
@@ -335,7 +336,7 @@ class Dataset_Toy_Example(Dataset):
         self.len_tf_single = self.num_step + 1 - self.seq_len - self.pred_len
         self.sample_id = np.repeat(np.linspace(0, self.num_sample - 1, self.num_sample), self.num_step)
         self.time_id = np.tile(np.linspace(0, self.num_step - 1, self.num_step), self.num_sample)
-        self.__read_data__()
+        self.__read_data__(num_grps)
 
     ## Function to calculate index
     def __getindex__(self, index):
@@ -345,16 +346,24 @@ class Dataset_Toy_Example(Dataset):
         return np.where((self.sample_id == index_sample) & (self.time_id == index_inseries))[0].item()
 
     ## Function to load data
-    def __read_data__(self):
+    def __read_data__(self, num_grps):
         # load raw data
         df_amount_path = os.path.join(self.root_path, 'data_toy_example_gauss.csv')
-        df_state_path = os.path.join(self.root_path, 'state_toy_example_gauss.csv')
         df_amount_raw = pd.read_csv(df_amount_path)
-        df_state_raw = pd.read_csv(df_state_path)
         df_amount_data = df_amount_raw[df_amount_raw.columns[1:]] # Remove the datetime column
-        df_state_data = df_state_raw[df_state_raw.columns[1:]] # Remove the datetime column
         df_time_data = df_amount_raw[df_amount_raw.columns[:1]]
 
+        # check if file for state clustering exists
+        df_state_path = os.path.join(self.root_path, f'state_toy_example_gauss_{num_grps}.csv')
+        if os.path.isfile(df_state_path):
+            df_state_raw = pd.read_csv(df_state_path)
+        else:
+            # perform clustering here
+            df_state_raw = cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=True, absolute_tail=False, segregate_samples=True, tail_samples_pct=1/3)
+            # save
+            df_state_raw.to_csv(df_state_path, sep=',', index=False, encoding='utf-8')
+        df_state_data = df_state_raw[df_state_raw.columns[1:]] # Remove the datetime column
+        
         # Train, validate, test 
         # Train test split (for now, we do not have test data)
         self.train_test_split = [0.9, 0.1, 0]
