@@ -132,7 +132,9 @@ def fix_correlation(amount, amount_sim):
   L_target = np.linalg.cholesky(np.cov(amount_2d.T))
   
   # Fix correlation
-  amount_sim_fixed = np.matmul(L_target, np.matmul(np.linalg.inv(L_transformer), amount_sim_2d.T)).T
+  # from a numerical analysis POV, avoid
+  # amount_sim_fixed = np.matmul(L_target, np.matmul(np.linalg.inv(L_transformer), amount_sim_2d.T)).T
+  amount_sim_fixed = np.matmul(L_target, np.linalg.solve(L_transformer, amount_sim_2d.T)).T
 
   return amount_sim_fixed
 

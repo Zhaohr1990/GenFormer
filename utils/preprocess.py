@@ -56,5 +56,3 @@ def cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=False
         df_state = df_time
         
     return df_state
-
-# to do: need a function for testing
