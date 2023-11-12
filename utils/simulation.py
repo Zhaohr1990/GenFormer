@@ -145,10 +145,10 @@ def reshuffle(sample_seq, resample_seq):
   
   return sample_seq[idx2][idx_inv]
 
-def fix_marginal_distribution_gauss(amount_sim):
+def fix_marginal_distribution_gauss(amount_sim, rng_seed=512):
   # Sampling
   d = amount_sim.shape
-  np.random.seed(512)
+  np.random.seed(rng_seed)
   y = np.random.normal(0, 1, d)
 
   # Reshuffle
