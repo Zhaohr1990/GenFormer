@@ -87,8 +87,9 @@ def main():
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_sl{}_ll{}_pl{}_ng{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+            setting = '{}_{}_{}_sl{}_ll{}_pl{}_ng{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
                 args.model_id,
+                args.example_name,
                 args.model,
                 args.seq_len,
                 args.label_len,
@@ -118,7 +119,8 @@ def main():
             torch.cuda.empty_cache()
     else:
         ii = 0
-        setting = '{}_{}_sl{}_ll{}_pl{}_ng{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(args.model_id,
+        setting = '{}_{}_{}_sl{}_ll{}_pl{}_ng{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(args.model_id,
+                                                                                            args.example_name,
                                                                                             args.model,
                                                                                             args.seq_len,
                                                                                             args.label_len,

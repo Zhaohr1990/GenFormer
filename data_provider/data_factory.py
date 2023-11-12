@@ -57,7 +57,7 @@ def data_provider_sim(args, flag):
         freq = args.freq
     
     # construct dataset
-
+    
     if args.example_name == 'Toy_Temperature':
         data_set = Dataset_Temperature_Sim(
             root_path=args.root_path,

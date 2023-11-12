@@ -377,7 +377,7 @@ class Dataset_Toy_Example(Dataset):
         self.state_data = df_state_data.values[border1:border2].astype('int')
         self.amount_data = df_amount_data.values[border1:border2]
         self.data_stamp = (df_time_data.values[border1:border2] * 1000).astype('int')
-
+        
     ## Function to get item
     def __getitem__(self, index):
         s_begin = self.__getindex__(index)
