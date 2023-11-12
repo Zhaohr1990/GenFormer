@@ -140,7 +140,10 @@ def fix_correlation(amount, amount_sim):
 
 def reshuffle(sample_seq, resample_seq):
   idx = resample_seq.argsort()
-  idx_inv = idx.argsort()
+  # idx_inv = idx.argsort()
+
+  idx_inv = np.empty_like(idx)
+  idx_inv[idx] = np.arange(len(resample_seq))
   idx2 = sample_seq.argsort()
   
   return sample_seq[idx2][idx_inv]
