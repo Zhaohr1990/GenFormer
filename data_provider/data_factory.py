@@ -57,10 +57,11 @@ def data_provider_sim(args, flag):
         freq = args.freq
     
     # construct dataset
-
+    
     if args.example_name == 'Toy_Temperature':
         data_set = Dataset_Temperature_Sim(
             root_path=args.root_path,
+            num_grps=args.num_grps,
             flag=flag,
             size=[args.seq_len, args.label_len, args.pred_len],
             freq=freq
@@ -68,6 +69,7 @@ def data_provider_sim(args, flag):
     elif args.example_name == 'Toy_Wind':
         data_set = Dataset_Wind_Sim(
             root_path=args.root_path,
+            num_grps=args.num_grps,
             flag=flag,
             size=[args.seq_len, args.label_len, args.pred_len],
             freq=freq
@@ -75,6 +77,7 @@ def data_provider_sim(args, flag):
     elif args.example_name == 'Toy_Example':
         data_set = Dataset_Toy_Example(
             root_path=args.root_path,
+            num_grps=args.num_grps,
             flag=flag,
             size=[args.seq_len, args.label_len, args.pred_len]
         )

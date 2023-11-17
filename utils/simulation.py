@@ -132,21 +132,26 @@ def fix_correlation(amount, amount_sim):
   L_target = np.linalg.cholesky(np.cov(amount_2d.T))
   
   # Fix correlation
-  amount_sim_fixed = np.matmul(L_target, np.matmul(np.linalg.inv(L_transformer), amount_sim_2d.T)).T
+  # from a numerical analysis POV, avoid
+  # amount_sim_fixed = np.matmul(L_target, np.matmul(np.linalg.inv(L_transformer), amount_sim_2d.T)).T
+  amount_sim_fixed = np.matmul(L_target, np.linalg.solve(L_transformer, amount_sim_2d.T)).T
 
   return amount_sim_fixed
 
 def reshuffle(sample_seq, resample_seq):
   idx = resample_seq.argsort()
-  idx_inv = idx.argsort()
+  # idx_inv = idx.argsort()
+
+  idx_inv = np.empty_like(idx)
+  idx_inv[idx] = np.arange(len(resample_seq))
   idx2 = sample_seq.argsort()
   
   return sample_seq[idx2][idx_inv]
 
-def fix_marginal_distribution_gauss(amount_sim):
+def fix_marginal_distribution_gauss(amount_sim, rng_seed=512):
   # Sampling
   d = amount_sim.shape
-  np.random.seed(512)
+  np.random.seed(rng_seed)
 
   # Reshuffle
   amount_fixed = np.copy(amount_sim)
