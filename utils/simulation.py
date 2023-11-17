@@ -147,12 +147,12 @@ def fix_marginal_distribution_gauss(amount_sim):
   # Sampling
   d = amount_sim.shape
   np.random.seed(512)
-  y = np.random.normal(0, 1, d)
 
   # Reshuffle
-  amount_fixed = amount_sim
+  amount_fixed = np.copy(amount_sim)
   for i in range(d[1]):
-    amount_fixed[:, i] = reshuffle(y[:, i], amount_sim[:, i])
+    y = np.random.normal(0, 1, d[0])
+    amount_fixed[:, i] = reshuffle(y, amount_sim[:, i])
 
   return amount_fixed
 
