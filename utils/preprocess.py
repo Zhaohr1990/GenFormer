@@ -43,6 +43,7 @@ def cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=False
 
         # sort by idx
         df_state.sort_values(by=['idx'], inplace=True)
+        df_state = df_state.reset_index(drop=True) # reset index so that the time will be in order
 
         # add time
         df_state['time'] = df_time

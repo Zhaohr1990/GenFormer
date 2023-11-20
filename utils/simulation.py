@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 import math
+from utils.timefeatures import time_features
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -73,16 +74,22 @@ def prepare_amount(df_amount_raw, num_sample_hist, seq_len):
 
   return amount_sim
 
-def read_data_for_simulation(df_amount_raw, df_state_raw, num_sample, seq_len):
+def read_data_for_simulation(df_amount_raw, df_state_raw, num_sample, seq_len, freq='h'):
   # Load data
   df_amount_data = df_amount_raw[df_amount_raw.columns[1:]].to_numpy()
   df_state_data = df_state_raw[df_state_raw.columns[1:]].to_numpy()
-  df_time_data = df_state_raw[df_state_raw.columns[:1]].to_numpy()
+  df_time_data = df_state_raw[df_state_raw.columns[:1]]
+  
+  if df_time_data.time.dtype == "object":
+    data_stamp = time_features(pd.to_datetime(df_time_data['time'].values), freq=freq)
+    data_stamp = data_stamp.transpose(1, 0)
+  else:
+    data_stamp = df_time_data.to_numpy()
 
   # Reshape data
   amount = reshape_2d_to_3d(df_amount_data, num_sample)
   state = reshape_2d_to_3d(df_state_data, num_sample)
-  time = reshape_2d_to_3d(df_time_data, num_sample)
+  time = reshape_2d_to_3d(data_stamp, num_sample)
 
   # Prepare amount data (append zeros in case length do not match)
   dim_a = amount.shape
