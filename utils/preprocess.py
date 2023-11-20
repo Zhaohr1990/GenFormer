@@ -33,8 +33,8 @@ def cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=False
         n_clusters_body = num_grps - n_clusters_tail
 
         # apply k-means
-        kmeans_body = KMeans(n_clusters=n_clusters_body, random_state=random_state, n_init=20, verbose=1).fit(df_body[df_body.columns[1:]])
-        kmeans_tail = KMeans(n_clusters=n_clusters_tail, random_state=random_state, n_init=20, verbose=1).fit(df_tail[df_tail.columns[1:]])
+        kmeans_body = KMeans(n_clusters=n_clusters_body, random_state=random_state, n_init=20, verbose=0).fit(df_body[df_body.columns[1:]])
+        kmeans_tail = KMeans(n_clusters=n_clusters_tail, random_state=random_state, n_init=20, verbose=0).fit(df_tail[df_tail.columns[1:]])
 
         # merge data frames
         df_body['state'] = kmeans_body.labels_
@@ -51,7 +51,7 @@ def cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=False
     else:
 
         # apply k-means directly
-        kmeans = KMeans(n_clusters=num_grps, random_state=random_state, n_init=20, verbose=1).fit(df_amount_data)
+        kmeans = KMeans(n_clusters=num_grps, random_state=random_state, n_init=20, verbose=0).fit(df_amount_data)
         df_time['state'] = kmeans.labels_
         df_state = df_time
         
