@@ -130,3 +130,16 @@ class StateTimeEmbedding_wo_time(nn.Module):
     def forward(self, x_state, x, x_mark):
         x = self.value_embedding(x) + torch.squeeze(self.state_embedding(x_state), 2) + self.position_embedding(x)
         return self.dropout(x)
+    
+## State + pos embedding (State embedding + Positional embedding)
+class StatePosEmbedding(nn.Module):
+    def __init__(self, num_grps, d_model, dropout=0.1):
+        super(StatePosEmbedding, self).__init__()
+        
+        self.state_embedding = nn.Embedding(num_grps + 1, embedding_dim=d_model) 
+        self.position_embedding = PositionalEmbedding(d_model=d_model)
+        self.dropout = nn.Dropout(p=dropout)
+
+    def forward(self, x_state, x, x_mark):
+        x = torch.squeeze(self.state_embedding(x_state), 2) + self.position_embedding(x_state)
+        return self.dropout(x)

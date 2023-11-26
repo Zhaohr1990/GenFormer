@@ -114,7 +114,7 @@ class Dataset_Wind_Sim(Dataset):
     ## Function to load data
     def __read_data__(self):
         # Load raw data
-        df_amount_path = os.path.join(self.root_path, 'wind_data_fl_8_gauss.csv')
+        df_amount_path = os.path.join(self.root_path, 'wind_data_fl_6_gauss.csv')
         df_amount_raw = pd.read_csv(df_amount_path)
         df_amount_data = df_amount_raw[df_amount_raw.columns[1:]] # Remove the datetime column
         
