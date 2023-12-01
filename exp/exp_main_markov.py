@@ -34,7 +34,10 @@ class Exp_Main_Markov(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
-        criterion = focal_loss(alpha=self.args.class_weights.cuda(), gamma=2, num_classes=self.args.num_grps)
+        if self.args.use_gpu:
+            criterion = focal_loss(alpha=self.args.class_weights.cuda(), gamma=2, num_classes=self.args.num_grps)
+        else:
+            criterion = focal_loss(alpha=self.args.class_weights, gamma=2, num_classes=self.args.num_grps)
         return criterion
 
     def vali(self, vali_data, vali_loader, criterion):
@@ -45,16 +48,16 @@ class Exp_Main_Markov(Exp_Basic):
                 batch_state_y = batch_state_y.int()
 
                 # decoder input
-                dec_inp = torch.zeros_like(batch_state_y[:, -self.args.pred_len:, :]).int() + self.args.num_grps
-                dec_inp = torch.cat([batch_state_y[:, :self.args.label_len, :], dec_inp], dim=1).int().to(self.device)
+                dec_inp = torch.zeros_like(batch_state_y[:, -1:, :]).int() + self.args.num_grps
+                dec_inp = torch.cat([batch_state_y[:, :self.args.seq_len_markov, :], dec_inp], dim=1).int().to(self.device)
                 # encoder - decoder
                 if self.args.output_attention:
                     outputs = self.model(dec_inp, None, None)[0]
                 else:
                     outputs = self.model(dec_inp, None, None)
 
-                outputs = outputs[:, -self.args.pred_len:, :].squeeze(1)
-                targets = batch_state_y[:, -self.args.pred_len:, :].squeeze(1).squeeze(1).long().to(self.device)
+                outputs = outputs[:, -1:, :].squeeze(1)
+                targets = batch_state_y[:, -1:, :].squeeze(1).squeeze(1).long().to(self.device)
                 
                 loss = criterion(outputs, targets)
                 loss = loss.item()
@@ -92,16 +95,16 @@ class Exp_Main_Markov(Exp_Basic):
                 batch_state_y = batch_state_y.int()
 
                 # decoder input
-                dec_inp = torch.zeros_like(batch_state_y[:, -self.args.pred_len:, :]).int() + self.args.num_grps
-                dec_inp = torch.cat([batch_state_y[:, :self.args.label_len, :], dec_inp], dim=1).int().to(self.device)
+                dec_inp = torch.zeros_like(batch_state_y[:, -1:, :]).int() + self.args.num_grps
+                dec_inp = torch.cat([batch_state_y[:, :self.args.seq_len_markov, :], dec_inp], dim=1).int().to(self.device)
                 # encoder - decoder
                 if self.args.output_attention:
                     outputs = self.model(dec_inp, None, None)[0]
                 else:
                     outputs = self.model(dec_inp, None, None)
 
-                outputs = outputs[:, -self.args.pred_len:, :].squeeze(1)
-                targets = batch_state_y[:, -self.args.pred_len:, :].squeeze(1).squeeze(1).long().to(self.device)
+                outputs = outputs[:, -1:, :].squeeze(1)
+                targets = batch_state_y[:, -1:, :].squeeze(1).squeeze(1).long().to(self.device)
 
                 loss = criterion(outputs, targets)
                 train_loss.append(loss.item())
