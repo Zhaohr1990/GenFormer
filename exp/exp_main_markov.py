@@ -65,8 +65,8 @@ class Exp_Main_Markov(Exp_Basic):
 
 
     def train(self, setting):
-        train_data, train_loader = self._get_data(flag='train')
-        vali_data, vali_loader = self._get_data(flag='val')
+        train_data, train_loader = self._get_data(flag='train', if_markov=True)
+        vali_data, vali_loader = self._get_data(flag='val', if_markov=True)
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -130,8 +130,8 @@ class Exp_Main_Markov(Exp_Basic):
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
-        #best_model_path = path + '/' + 'checkpoint.pth'
-        #self.model.load_state_dict(torch.load(best_model_path))
+        best_model_path = path + '/' + 'checkpoint.pth'
+        self.model.load_state_dict(torch.load(best_model_path))
 
         return
 

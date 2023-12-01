@@ -54,58 +54,38 @@ def reshape_3d_to_2d(data_in, out_type='tensor'):
 
   return amount_2d
 
-def prepare_amount(df_amount_raw, num_sample_hist, seq_len):
-  # Load data
-  df_amount_data = df_amount_raw[df_amount_raw.columns[1:]].to_numpy()
-
-  # Reshape data
-  amount = reshape_2d_to_3d(df_amount_data, num_sample_hist)
-
-  # Calculate replicate number
-  num_step = amount.shape[1]
-  rep_num = int(np.floor(num_step / seq_len))
-
-  # Replicate
-  amount_sim = amount[:, :seq_len, :]
-  amount_sim = torch.repeat_interleave(amount_sim, rep_num, dim=0)
-  dim_a = amount_sim.shape
-  zeros_tail = torch.zeros(dim_a[0], num_step - seq_len, dim_a[2]).float()
-  amount_sim = torch.cat([amount_sim, zeros_tail], dim=1).float()
-
-  return amount_sim
-
-def read_data_for_simulation(df_amount_raw, df_state_raw, num_sample, seq_len, freq='h'):
-  # Load data
-  df_amount_data = df_amount_raw[df_amount_raw.columns[1:]].to_numpy()
-  df_state_data = df_state_raw[df_state_raw.columns[1:]].to_numpy()
-  df_time_data = df_state_raw[df_state_raw.columns[:1]]
+def simulate_markov(exp_markov, state):
+  # Define softmax
+  s_m = torch.nn.Softmax(dim=2)
   
-  if df_time_data.time.dtype == "object":
-    data_stamp = time_features(pd.to_datetime(df_time_data['time'].values), freq=freq)
-    data_stamp = data_stamp.transpose(1, 0)
-  else:
-    data_stamp = df_time_data.to_numpy()
+  # Calculate the number of iterations
+  d = state.shape
+  start_pt = exp_markov.args.seq_len - exp_markov.args.seq_len_markov
+  num_autoreg = d[1] - start_pt
 
-  # Reshape data
-  amount = reshape_2d_to_3d(df_amount_data, num_sample)
-  state = reshape_2d_to_3d(df_state_data, num_sample)
-  time = reshape_2d_to_3d(data_stamp, num_sample)
+  # Simulate
+  exp_markov.model.eval()
+  with torch.no_grad():
+    for i in range(num_autoreg):
+      s_begin = i + start_pt
+      s_end = s_begin + exp_markov.args.seq_len_markov
+      r_begin = s_end - exp_markov.args.seq_len_markov
+      r_end = r_begin + exp_markov.args.seq_len_markov + 1
 
-  # Prepare amount data (append zeros in case length do not match)
-  dim_a = amount.shape
-  dim_s = state.shape
-  seq_len = min(seq_len, dim_a[1]) # update seq_len
-  amount_sim = amount[:, :seq_len, :]
-  zeros_tail = torch.zeros(dim_a[0], dim_a[1] - seq_len, dim_a[2]).float()
-  amount_sim = torch.cat([amount_sim, zeros_tail], dim=1).float()
+      batch_state_y = state[:, r_begin:r_end, :].int()
+      dec_inp = torch.zeros_like(batch_state_y[:, -1:, :]).int() + exp_markov.args.num_grps
+      dec_inp = torch.cat([batch_state_y[:, :exp_markov.args.seq_len_markov, :], dec_inp], dim=1).int().to(exp_markov.device)
 
-  return amount, state, time, amount_sim
+      outputs = exp_markov.model(dec_inp, None, None)
+      outputs_softmax = s_m(outputs)
+      state[:, s_end:r_end, :] = torch.multinomial(outputs_softmax.squeeze(1), 1).unsqueeze(2)
+
+  return state
 
 def simulate(exp, amount, state, time):
   # Calculate the number of iterations
   d = state.shape
   num_step = d[1]
-  num_sample = d[0]
   num_autoreg = int(np.floor((num_step - exp.args.seq_len) / exp.args.pred_len))
 
   # Simulate
@@ -190,10 +170,52 @@ def estimate_cor(amount, num_sample):
 
   return c
 
-  
-  
+def prepare_amount(df_amount_raw, num_sample_hist, seq_len):
+  # Load data
+  df_amount_data = df_amount_raw[df_amount_raw.columns[1:]].to_numpy()
 
+  # Reshape data
+  amount = reshape_2d_to_3d(df_amount_data, num_sample_hist)
+
+  # Calculate replicate number
+  num_step = amount.shape[1]
+  rep_num = int(np.floor(num_step / seq_len))
+
+  # Replicate
+  amount_sim = amount[:, :seq_len, :]
+  amount_sim = torch.repeat_interleave(amount_sim, rep_num, dim=0)
+  dim_a = amount_sim.shape
+  zeros_tail = torch.zeros(dim_a[0], num_step - seq_len, dim_a[2]).float()
+  amount_sim = torch.cat([amount_sim, zeros_tail], dim=1).float()
+
+  return amount_sim
+
+def read_data_for_simulation(df_amount_raw, df_state_raw, num_sample, seq_len, freq='h'):
+  # Load data
+  df_amount_data = df_amount_raw[df_amount_raw.columns[1:]].to_numpy()
+  df_state_data = df_state_raw[df_state_raw.columns[1:]].to_numpy()
+  df_time_data = df_state_raw[df_state_raw.columns[:1]]
   
+  if df_time_data.time.dtype == "object":
+    data_stamp = time_features(pd.to_datetime(df_time_data['time'].values), freq=freq)
+    data_stamp = data_stamp.transpose(1, 0)
+  else:
+    data_stamp = df_time_data.to_numpy()
+
+  # Reshape data
+  amount = reshape_2d_to_3d(df_amount_data, num_sample)
+  state = reshape_2d_to_3d(df_state_data, num_sample)
+  time = reshape_2d_to_3d(data_stamp, num_sample)
+
+  # Prepare amount data (append zeros in case length do not match)
+  dim_a = amount.shape
+  dim_s = state.shape
+  seq_len = min(seq_len, dim_a[1]) # update seq_len
+  amount_sim = amount[:, :seq_len, :]
+  zeros_tail = torch.zeros(dim_a[0], dim_a[1] - seq_len, dim_a[2]).float()
+  amount_sim = torch.cat([amount_sim, zeros_tail], dim=1).float()
+
+  return amount, state, time, amount_sim  
 
 
 

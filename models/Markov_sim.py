@@ -13,7 +13,7 @@ class Model(nn.Module):
     """
     def __init__(self, configs):
         super(Model, self).__init__()
-        self.pred_len = configs.pred_len
+        self.pred_len = 1
         self.output_attention = configs.output_attention
 
         # Embedding
