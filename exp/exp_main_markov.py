@@ -25,7 +25,7 @@ class Exp_Main_Markov(Exp_Basic):
         model = Markov_sim.Model(self.args).float()
         return model
 
-    def _get_data(self, flag):
+    def _get_data(self, flag, if_markov):
         data_set, data_loader = data_provider_sim(self.args, flag, if_markov=True)
         return data_set, data_loader
 
