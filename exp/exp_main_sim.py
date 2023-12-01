@@ -26,7 +26,7 @@ class Exp_Main_Sim(Exp_Basic):
         return model
 
     def _get_data(self, flag):
-        data_set, data_loader = data_provider_sim(self.args, flag)
+        data_set, data_loader = data_provider_sim(self.args, flag, if_markov=False)
         return data_set, data_loader
 
     def _select_optimizer(self):

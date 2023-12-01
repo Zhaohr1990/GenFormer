@@ -42,7 +42,8 @@ def data_provider(args, flag):
     return data_set, data_loader
 """
 
-def data_provider_sim(args, flag):
+def data_provider_sim(args, flag, if_markov=False):
+    '''flag: train/val/test, if_markov is true when loading data for markov model, else for informer model'''
 
     # set shuffle and drop_last
     if flag == 'test' or flag == 'val':
@@ -63,7 +64,7 @@ def data_provider_sim(args, flag):
             root_path=args.root_path,
             num_grps=args.num_grps,
             flag=flag,
-            size=[args.seq_len, args.label_len, args.pred_len],
+            size=[args.seq_len_markov, args.seq_len_markov, 1] if if_markov else [args.seq_len, args.label_len, args.pred_len],
             freq=freq
         )
     elif args.example_name == 'Toy_Wind':
@@ -71,7 +72,7 @@ def data_provider_sim(args, flag):
             root_path=args.root_path,
             num_grps=args.num_grps,
             flag=flag,
-            size=[args.seq_len, args.label_len, args.pred_len],
+            size=[args.seq_len_markov, args.seq_len_markov, 1] if if_markov else [args.seq_len, args.label_len, args.pred_len],
             freq=freq
         )
     elif args.example_name == 'Toy_Example':
@@ -79,7 +80,7 @@ def data_provider_sim(args, flag):
             root_path=args.root_path,
             num_grps=args.num_grps,
             flag=flag,
-            size=[args.seq_len, args.label_len, args.pred_len]
+            size=[args.seq_len_markov, args.seq_len_markov, 1] if if_markov else [args.seq_len, args.label_len, args.pred_len],
         )
     else:
         raise ValueError('Example not found.')

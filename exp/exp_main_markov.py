@@ -26,14 +26,14 @@ class Exp_Main_Markov(Exp_Basic):
         return model
 
     def _get_data(self, flag):
-        data_set, data_loader = data_provider_sim(self.args, flag)
+        data_set, data_loader = data_provider_sim(self.args, flag, if_markov=True)
         return data_set, data_loader
 
     def _select_optimizer(self):
         model_optim = optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
         return model_optim
 
-    def _select_criterion(self, device='cuda'):
+    def _select_criterion(self):
         criterion = focal_loss(alpha=self.args.class_weights.cuda(), gamma=2, num_classes=self.args.num_grps)
         return criterion
 
@@ -57,11 +57,6 @@ class Exp_Main_Markov(Exp_Basic):
                 targets = batch_state_y[:, -self.args.pred_len:, :].squeeze(1).squeeze(1).long().to(self.device)
                 
                 loss = criterion(outputs, targets)
-
-                #pred = outputs.detach().cpu()
-                #true = targets.detach().cpu()
-                #loss = criterion(pred, true)
-
                 loss = loss.item()
                 total_loss.append(loss)
         total_loss = np.average(total_loss)
@@ -83,8 +78,7 @@ class Exp_Main_Markov(Exp_Basic):
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
         model_optim = self._select_optimizer()
-        criterion = self._select_criterion(device='cuda')
-        #criterion_cpu = self._select_criterion(device='cpu')
+        criterion = self._select_criterion()
 
         for epoch in range(self.args.train_epochs):
             iter_count = 0
