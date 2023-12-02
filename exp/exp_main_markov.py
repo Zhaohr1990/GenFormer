@@ -34,10 +34,14 @@ class Exp_Main_Markov(Exp_Basic):
         return model_optim
 
     def _select_criterion(self):
+        num_grps_tail = int(self.args.num_grps * self.args.tail_pct)
+        num_grps_body = self.args.num_grps - num_grps_tail
+        class_weights = torch.concatenate((torch.ones(num_grps_body), self.args.tail_factor_state * torch.ones(num_grps_tail)), axis=0)
+
         if self.args.use_gpu:
-            criterion = focal_loss(alpha=self.args.class_weights.cuda(), gamma=2, num_classes=self.args.num_grps)
+            criterion = focal_loss(alpha=class_weights.cuda(), gamma=2, num_classes=self.args.num_grps)
         else:
-            criterion = focal_loss(alpha=self.args.class_weights, gamma=2, num_classes=self.args.num_grps)
+            criterion = focal_loss(alpha=class_weights, gamma=2, num_classes=self.args.num_grps)
         return criterion
 
     def vali(self, vali_data, vali_loader, criterion):

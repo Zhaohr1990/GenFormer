@@ -73,6 +73,7 @@ def data_provider_sim(args, flag, if_markov=False):
             num_grps=args.num_grps,
             flag=flag,
             size=[args.seq_len_markov, args.seq_len_markov, 1] if if_markov else [args.seq_len, args.label_len, args.pred_len],
+            tail_pct=args.tail_pct,
             freq=freq
         )
     elif args.example_name == 'Toy_Example':
@@ -81,6 +82,7 @@ def data_provider_sim(args, flag, if_markov=False):
             num_grps=args.num_grps,
             flag=flag,
             size=[args.seq_len_markov, args.seq_len_markov, 1] if if_markov else [args.seq_len, args.label_len, args.pred_len],
+            tail_pct=args.tail_pct
         )
     else:
         raise ValueError('Example not found.')

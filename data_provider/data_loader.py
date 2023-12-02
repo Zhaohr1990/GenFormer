@@ -92,7 +92,7 @@ class Dataset_Temperature_Sim(Dataset):
         return self.scaler.inverse_transform(data)
 
 class Dataset_Wind_Sim(Dataset):
-    def __init__(self, root_path, num_grps, flag='train', size=None, freq='h'):   
+    def __init__(self, root_path, num_grps, flag='train', size=None, tail_pct=1/3, freq='h'):   
         # init
         if size == None:
             self.seq_len = 8 * 7 * 2
@@ -109,6 +109,7 @@ class Dataset_Wind_Sim(Dataset):
         self.set_type = type_map[flag]
         self.freq = freq
         self.root_path = root_path
+        self.tail_pct = tail_pct
         self.__read_data__()
     
     ## Function to load data
@@ -125,7 +126,7 @@ class Dataset_Wind_Sim(Dataset):
             df_state_raw = pd.read_csv(df_state_path)
         else:
             # perform clustering here
-            df_state_raw = cluster_MarkovChain_states(df_amount_path, self.num_grps, gaussian_marginal=True, absolute_tail=False, segregate_samples=True, tail_samples_pct=1/3)
+            df_state_raw = cluster_MarkovChain_states(df_amount_path, self.num_grps, gaussian_marginal=True, absolute_tail=False, segregate_samples=True, tail_samples_pct=self.tail_pct)
             # save
             df_state_raw.to_csv(df_state_path, sep=',', index=False, encoding='utf-8')
         df_state_data = df_state_raw[df_state_raw.columns[1:]] # Remove the datetime column
@@ -171,7 +172,7 @@ class Dataset_Wind_Sim(Dataset):
         return len(self.amount_data) - self.seq_len - self.pred_len + 1
 
 class Dataset_Toy_Example(Dataset):
-    def __init__(self, root_path, num_grps, flag='train', num_step=201, num_sample=1000, size=None):   
+    def __init__(self, root_path, num_grps, flag='train', num_step=201, num_sample=1000, size=None, tail_pct=1/3):   
         # init
         if size == None:
             self.seq_len = 200
@@ -186,6 +187,7 @@ class Dataset_Toy_Example(Dataset):
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
         self.root_path = root_path
+        self.tail_pct = tail_pct
         self.num_step = num_step
         self.num_sample = num_sample
         self.len_tf_single = self.num_step + 1 - self.seq_len - self.pred_len
@@ -214,7 +216,7 @@ class Dataset_Toy_Example(Dataset):
             df_state_raw = pd.read_csv(df_state_path)
         else:
             # perform clustering here
-            df_state_raw = cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=True, absolute_tail=False, segregate_samples=True, tail_samples_pct=1/3)
+            df_state_raw = cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=True, absolute_tail=False, segregate_samples=True, tail_samples_pct=self.tail_pct)
             # save
             df_state_raw.to_csv(df_state_path, sep=',', index=False, encoding='utf-8')
         df_state_data = df_state_raw[df_state_raw.columns[1:]] # Remove the datetime column
