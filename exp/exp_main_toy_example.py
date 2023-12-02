@@ -23,8 +23,8 @@ class Exp_Main_Toy(Exp_Basic):
         model = Informer_sim.Model(self.args).float()
         return model
 
-    def _get_data(self, flag):
-        data_set, data_loader = data_provider_sim(self.args, flag)
+    def _get_data(self, flag, if_markov):
+        data_set, data_loader = data_provider_sim(self.args, flag, if_markov=False)
         return data_set, data_loader
 
     def _select_optimizer(self):
@@ -58,8 +58,8 @@ class Exp_Main_Toy(Exp_Basic):
                 outputs = outputs[:, -self.args.pred_len:, :]
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
                 
-                outputs = torch.where(outputs > 1.75, self.args.tail_scaler * outputs, outputs)
-                batch_y = torch.where(batch_y > 1.75, self.args.tail_scaler * batch_y, batch_y)
+                #outputs = torch.where(outputs > 1.75, self.args.tail_scaler * outputs, outputs)
+                #batch_y = torch.where(batch_y > 1.75, self.args.tail_scaler * batch_y, batch_y)
 
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
@@ -72,8 +72,8 @@ class Exp_Main_Toy(Exp_Basic):
         return total_loss
 
     def train(self, setting):
-        train_data, train_loader = self._get_data(flag='train')
-        vali_data, vali_loader = self._get_data(flag='val')
+        train_data, train_loader = self._get_data(flag='train', if_markov=False)
+        vali_data, vali_loader = self._get_data(flag='val', if_markov=False)
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -115,8 +115,8 @@ class Exp_Main_Toy(Exp_Basic):
                 outputs = outputs[:, -self.args.pred_len:, 0:]
                 batch_y = batch_y[:, -self.args.pred_len:, 0:].to(self.device)
                 
-                outputs = torch.where(outputs > 1.75, self.args.tail_scaler * outputs, outputs)
-                batch_y = torch.where(batch_y > 1.75, self.args.tail_scaler * batch_y, batch_y)
+                #outputs = torch.where(outputs > 1.75, self.args.tail_scaler * outputs, outputs)
+                #batch_y = torch.where(batch_y > 1.75, self.args.tail_scaler * batch_y, batch_y)
 
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
@@ -145,8 +145,8 @@ class Exp_Main_Toy(Exp_Basic):
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
-        #best_model_path = path + '/' + 'checkpoint.pth'
-        #self.model.load_state_dict(torch.load(best_model_path))
+        best_model_path = path + '/' + 'checkpoint.pth'
+        self.model.load_state_dict(torch.load(best_model_path))
 
         return
     

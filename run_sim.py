@@ -3,6 +3,7 @@ import os
 import torch
 from exp.exp_main_sim import Exp_Main_Sim
 from exp.exp_main_markov import Exp_Main_Markov
+from exp.exp_main_toy_example import Exp_Main_Toy
 from utils.simulation import simulate_main
 import random
 import numpy as np
@@ -89,7 +90,7 @@ def main():
     print('Args in experiment:')
     print(args)
     
-    exp = Exp_Main_Sim(args)
+    exp = Exp_Main_Sim(args) if args.example_name == 'Toy_Wind' else Exp_Main_Toy(args)
     exp_markov = Exp_Main_Markov(args)
 
     if args.is_training:

@@ -17,7 +17,7 @@ class Model(nn.Module):
         self.output_attention = configs.output_attention
 
         # Embedding
-        if configs.freq == None:
+        if configs.freq == 'None':
             self.enc_embedding = StateTimeEmbedding_wo_time(configs.enc_in, configs.num_grps, configs.d_model, configs.dropout)
             self.dec_embedding = StateTimeEmbedding_wo_time(configs.dec_in, configs.num_grps, configs.d_model, configs.dropout)
         else: 
