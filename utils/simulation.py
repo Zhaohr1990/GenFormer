@@ -109,10 +109,15 @@ def simulate(exp, amount, state, time):
 
   return amount
 
-def fix_correlation(amount, amount_sim):
-  # Reshape amount and amount_sim
-  amount_2d = reshape_3d_to_2d(amount, out_type='numpy')
+def fix_correlation(exp, amount_sim):
+  # Reshape amount_sim
   amount_sim_2d = reshape_3d_to_2d(amount_sim, out_type='numpy')
+  
+  # Gather amount data
+  train_set, _ = exp._get_data(flag='train', if_markov=False)
+  vali_set, _ = exp._get_data(flag='val', if_markov=False)
+  test_set, _ = exp._get_data(flag='test', if_markov=False)
+  amount_2d = np.concatenate((train_set.amount_data, vali_set.amount_data, test_set.amount_data), axis=0)
   
   # Cholesky decomposition
   L_transformer = np.linalg.cholesky(np.cov(amount_sim_2d.T))
