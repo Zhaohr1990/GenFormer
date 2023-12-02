@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 import math
 from utils.timefeatures import time_features
+from utils.tools import set_random_seed
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -152,6 +153,28 @@ def fix_marginal_distribution_gauss(amount_sim, rng_seed=512):
     amount_fixed[:, i] = reshuffle(y, amount_sim[:, i])
 
   return amount_fixed
+
+def simulate_main(exp, exp_markov, state, amount, time):
+  print("Simulate state sequence from Markov model")
+  set_random_seed(0)
+  state = simulate_markov(exp_markov, state)
+  
+  print("Infer amount sequence from the deep learning model")
+  set_random_seed(512)
+  amount = simulate(exp, amount, state, time)
+
+  print("Correct correlation")
+  amount = fix_correlation(exp, amount)
+
+  print("Correct Gaussian marginal distribution") 
+  set_random_seed(54321)
+  amount = fix_marginal_distribution_gauss(amount)
+
+  # Reshape amount
+  num_sample = state.shape[0]
+  amount = reshape_2d_to_3d(amount, num_sample, out_type='tensor')
+
+  return state, amount
 
 def ecdf(data):
   # Compute ECDF
