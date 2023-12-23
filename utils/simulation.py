@@ -187,16 +187,15 @@ def ecdf(data):
 def estimate_cor(amount, num_sample):
   # Reshape_2d_to_3d if needed
   if len(amount.shape) == 2:
-    amount = reshape_2d_to_3d(amount, num_sample, out_type='tensor')
-  elif len(amount.shape) == 3 and type(amount) == np.ndarray:
-    amount = torch.from_numpy(amount)
+    amount = reshape_2d_to_3d(amount, num_sample, out_type='numpy')
+  elif len(amount.shape) == 3 and type(amount) != np.ndarray:
+    amount = amount.numpy()
   
   # Estimate correlation
-  d = amount.shape[2]
-  c = [torch.corrcoef(amount[:, :, k].T)[:, 0] for k in range(d)]
-  c = torch.stack(c, dim=1)
+  d = amount.shape 
+  c = [[np.corrcoef(amount[:, l:, k].flatten(), amount[:, :(d[1]-l), k].flatten())[0, 1] for k in range(d[2])] for l in range(d[1])]
 
-  return c
+  return np.stack(c)
 
 def prepare_amount(df_amount_raw, num_sample_hist, seq_len):
   # Load data
