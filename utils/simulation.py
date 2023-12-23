@@ -161,20 +161,20 @@ def simulate_main(exp, exp_markov, state, amount, time):
   
   print("Infer amount sequence from the deep learning model")
   set_random_seed(512)
-  amount = simulate(exp, amount, state, time)
+  amount_Dl = simulate(exp, amount, state, time)
 
   print("Correct correlation")
-  amount = fix_correlation(exp, amount)
+  amount_Chol = fix_correlation(exp, amount_Dl)
 
   print("Correct Gaussian marginal distribution") 
   set_random_seed(54321)
-  amount = fix_marginal_distribution_gauss(amount)
+  amount_Rshfl = fix_marginal_distribution_gauss(amount_Chol)
 
   # Reshape amount
   num_sample = state.shape[0]
-  amount = reshape_2d_to_3d(amount, num_sample, out_type='tensor')
+  amount_Rshfl = reshape_2d_to_3d(amount_Rshfl, num_sample, out_type='tensor')
 
-  return state, amount
+  return state, amount_Dl, amount_Chol, amount_Rshfl
 
 def ecdf(data):
   # Compute ECDF

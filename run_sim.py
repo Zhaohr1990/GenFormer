@@ -180,10 +180,12 @@ def main():
         amount = torch.load(args.amount_init_root_path)
         time = torch.load(args.time_init_root_path)
         
-        state_sim, amount_sim = simulate_main(exp, exp_markov, state, amount, time)
+        state_sim, amount_Dl, amount_Chol, amount_Rshfl = simulate_main(exp, exp_markov, state, amount, time)
 
         torch.save(state_sim, os.path.join(args.root_path, 'state_sim_'+setting+'.pt'))
-        torch.save(amount_sim, os.path.join(args.root_path, 'amount_sim_'+setting+'.pt'))
+        torch.save(amount_Dl, os.path.join(args.root_path, 'amount_Dl_'+setting+'.pt'))
+        torch.save(amount_Chol, os.path.join(args.root_path, 'amount_Chol_'+setting+'.pt'))
+        torch.save(amount_Rshfl, os.path.join(args.root_path, 'amount_Rshfl_'+setting+'.pt'))
 
         torch.cuda.empty_cache()
 
