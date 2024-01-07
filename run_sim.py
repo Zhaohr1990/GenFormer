@@ -39,7 +39,7 @@ def main():
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
     parser.add_argument('--pred_len', type=int, default=48, help='prediction sequence length')
 
-    # model define
+    # model definition
     parser.add_argument('--num_grps', type=int, default=300, help='number of discrete states')
     parser.add_argument('--tail_pct', type=float, default=1/3, help='percentage of states in tail')
     parser.add_argument('--tail_factor_state', type=float, default=1.2, help='amplification factor for states in tail')
@@ -94,6 +94,7 @@ def main():
     exp_markov = Exp_Main_Markov(args)
 
     if args.is_training:
+        # train Markov sequence generator and deep learning model
         # setting record of experiments
         setting_markov = '{}_{}_{}_ng{}_sl{}_dm{}_nh{}_el{}_df{}_fc{}_dt{}_{}'.format(
             args.model_id,
@@ -108,7 +109,7 @@ def main():
             args.factor,
             args.des, 0)
 
-        print('>>>>>>>start training for Markov model: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting_markov))
+        print('>>>>>>>start training for Markov sequence generator model: {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting_markov))
         exp_markov.train(setting_markov)
 
         torch.cuda.empty_cache()
@@ -136,6 +137,7 @@ def main():
         torch.cuda.empty_cache()
 
     else:
+        # load trained models to perform simulation
         setting_markov = '{}_{}_{}_ng{}_sl{}_dm{}_nh{}_el{}_df{}_fc{}_dt{}_{}'.format(
             args.model_id,
             'Markov',

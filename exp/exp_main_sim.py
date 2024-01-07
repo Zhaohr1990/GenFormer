@@ -37,7 +37,10 @@ class Exp_Main_Sim(Exp_Basic):
         criterion = nn.L1Loss() #nn.MSELoss()
         return criterion
 
-    def vali(self, vali_data, vali_loader, criterion):
+    def vali(self, vali_loader, criterion):
+        """
+            Helper function to validate the deep learning model
+        """
         total_loss = []
         self.model.eval()
         with torch.no_grad():
@@ -74,6 +77,9 @@ class Exp_Main_Sim(Exp_Basic):
         return total_loss
 
     def train(self, setting):
+        """
+            Method to train the deep learning model
+        """
         train_data, train_loader = self._get_data(flag='train', if_markov=False)
         vali_data, vali_loader = self._get_data(flag='val', if_markov=False)
 
@@ -135,7 +141,7 @@ class Exp_Main_Sim(Exp_Basic):
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
-            vali_loss = self.vali(vali_data, vali_loader, criterion)
+            vali_loss = self.vali(vali_loader, criterion)
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss))
