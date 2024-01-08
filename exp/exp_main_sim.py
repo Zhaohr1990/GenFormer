@@ -18,6 +18,9 @@ import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
 class Exp_Main_Sim(Exp_Basic):
+    """
+        Class for deep learning model for the amounts
+    """
     def __init__(self, args):
         super(Exp_Main_Sim, self).__init__(args)
 

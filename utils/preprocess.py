@@ -4,7 +4,9 @@ import pandas as pd
 from sklearn.cluster import KMeans
 
 def cluster_MarkovChain_states(df_amount_path, num_grps, gaussian_marginal=False, absolute_tail=False, segregate_samples=False, tail_samples_pct=None):
-
+    """
+        Cluster the continuous time states to construct the Markov process.
+    """
     # assume that first column is time index
     df_amount_raw = pd.read_csv(df_amount_path)
     df_time = df_amount_raw[['time']]
