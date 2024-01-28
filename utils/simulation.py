@@ -56,6 +56,11 @@ def reshape_3d_to_2d(data_in, out_type='tensor'):
   return amount_2d
 
 def simulate_markov(exp_markov, state):
+  """
+    Simulate a Markov state sequence.
+    exp_markov:
+    state:
+  """
   # Define softmax
   s_m = torch.nn.Softmax(dim=2)
   
@@ -84,6 +89,13 @@ def simulate_markov(exp_markov, state):
   return state
 
 def simulate(exp, amount, state, time):
+  """
+    Utilize the deep learning model to simulate amount sequences.
+    exp:
+    amount:
+    state:
+    time:
+  """
   # Calculate the number of iterations
   d = state.shape
   num_step = d[1]
@@ -111,6 +123,11 @@ def simulate(exp, amount, state, time):
   return amount
 
 def fix_correlation(exp, amount_sim):
+  """
+    Correct spatial correlation by applying a transformation based on Cholesky decomposition.
+    exp:
+    amount_sim:
+  """
   # Reshape amount_sim
   amount_sim_2d = reshape_3d_to_2d(amount_sim, out_type='numpy')
   
@@ -132,6 +149,11 @@ def fix_correlation(exp, amount_sim):
   return amount_sim_fixed
 
 def reshuffle(sample_seq, resample_seq):
+  """
+    Perform reshuffling to correct the marginal distribution.
+    sample_seq:
+    resample_seq:
+  """
   idx = resample_seq.argsort()
   # idx_inv = idx.argsort()
 
@@ -142,6 +164,11 @@ def reshuffle(sample_seq, resample_seq):
   return sample_seq[idx2][idx_inv]
 
 def fix_marginal_distribution_gauss(amount_sim, rng_seed=512):
+  """
+    Correct marginal distribution by performing reshuffling.
+    amount_sim:
+    rng_seed: 
+  """
   # Sampling
   d = amount_sim.shape
   np.random.seed(rng_seed)
@@ -155,6 +182,14 @@ def fix_marginal_distribution_gauss(amount_sim, rng_seed=512):
   return amount_fixed
 
 def simulate_main(exp, exp_markov, state, amount, time):
+  """
+    Perform inference to generate new synthetic realizations.
+    exp: trained deep learning object
+    exp_markov: trained Markov sequence generator
+    state:
+    amount:
+    time: 
+  """
   print("Simulate state sequence from Markov model")
   set_random_seed(0)
   state = simulate_markov(exp_markov, state)

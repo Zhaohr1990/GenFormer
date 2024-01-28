@@ -67,7 +67,9 @@ class Model(nn.Module):
         )
 
     def forward(self, x_state_enc, x_enc, x_mark_enc, x_state_dec, x_dec, x_mark_dec, enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None): 
-
+        """
+            Perform forward pass of the deep learning model
+        """
         enc_out = self.enc_embedding(x_state_enc, x_enc, x_mark_enc) 
         enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
 
