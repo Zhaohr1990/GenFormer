@@ -17,11 +17,11 @@ Our numerical examples involving numerous spatial locations and simulation over 
 If you find this repo useful, please cite our paper. 
 
 ```
-@inproceedings{wu2021autoformer,
-  title={Autoformer: Decomposition Transformers with {Auto-Correlation} for Long-Term Series Forecasting},
-  author={Haixu Wu and Jiehui Xu and Jianmin Wang and Mingsheng Long},
-  booktitle={Advances in Neural Information Processing Systems},
-  year={2021}
+@article{genformer_paper,
+    author = "Zhao, H. and Uy, W.I.T.",
+    title = "GenFormer: A Deep-Learning-Based Approach for Generating Multivariate Stochastic Processes",
+    journal = "	arXiv:2402.02010",
+    year = 2024
 }
 ```
 
