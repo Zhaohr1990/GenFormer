@@ -68,3 +68,18 @@ class dotdict(dict):
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
 
+def count_layer_params(module, name='model', max_depth=3):
+    if max_depth >= 1 and sum(1 for _ in module.children()) > 0:
+        for child_name, child_module in module.named_children():
+            yield from count_layer_params(child_module, name + '.' + child_name, max_depth - 1)
+    else:
+        yield name, sum(p.numel() for p in module.parameters() if p.requires_grad)
+
+def count_model(model, **kwargs):
+    '''
+    Count the number of parameters in a model by layers
+    '''
+    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    for name, num in count_layer_params(model, **kwargs):
+        print(f'{name}: # of parameters = {num}, % = {num/total_params*100:.2f}')

@@ -143,3 +143,7 @@ data/
 
 # Mac files
 .DS_Store
+
+# Test scripts
+notebooks/test.ipynb
+notebooks/train_script_test.py
