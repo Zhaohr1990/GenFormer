@@ -146,4 +146,7 @@ data/
 
 # Test scripts
 notebooks/test.ipynb
-notebooks/train_script_test.py
+train_script_test.py
+
+# others
+.gitignore
